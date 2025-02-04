@@ -2,3 +2,82 @@
 # cargo-vet audits file
 
 [audits]
+
+[[trusted.endi]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2023-12-10"
+end = "2026-02-04"
+
+[[trusted.event-listener]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2024-02-05"
+end = "2026-02-04"
+
+[[trusted.libc]]
+criteria = "safe-to-run"
+user-id = 51017
+start = "2020-03-17"
+end = "2026-02-04"
+
+[[trusted.rustix]]
+criteria = "safe-to-run"
+user-id = 6825 # Dan Gohman (sunfishcode)
+start = "2021-10-29"
+end = "2026-02-04"
+
+[[trusted.tokio]]
+criteria = "safe-to-run"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2020-12-25"
+end = "2026-02-04"
+
+[[trusted.winnow]]
+criteria = "safe-to-run"
+user-id = 6743 # Ed Page (epage)
+start = "2023-02-22"
+end = "2026-02-04"
+
+[[trusted.xdg-home]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2023-03-28"
+end = "2026-02-04"
+
+[[trusted.zbus]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2020-07-19"
+end = "2026-02-04"
+notes = "Prolific DBus developer"
+
+[[trusted.zbus_macros]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2020-07-19"
+end = "2026-02-04"
+
+[[trusted.zbus_names]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2021-07-30"
+end = "2026-02-04"
+
+[[trusted.zvariant]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2019-12-30"
+end = "2026-02-04"
+
+[[trusted.zvariant_derive]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2020-05-22"
+end = "2026-02-04"
+
+[[trusted.zvariant_utils]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2023-03-07"
+end = "2026-02-04"

@@ -3,3 +3,228 @@
 
 [cargo-vet]
 version = "0.10"
+
+[imports.google]
+url = "https://raw.githubusercontent.com/google/supply-chain/main/audits.toml"
+
+[imports.mozilla]
+url = "https://raw.githubusercontent.com/mozilla/supply-chain/main/audits.toml"
+
+[imports.swsnr]
+url = "https://raw.githubusercontent.com/swsnr/rust-supply-chain/refs/heads/main/audits.toml"
+
+[policy.darklightd]
+criteria = "safe-to-run"
+notes = "Just a local service with little to no external exposure, so safe-to-run is enough"
+
+[[exemptions.async-broadcast]]
+version = "0.7.2"
+criteria = "safe-to-run"
+
+[[exemptions.async-channel]]
+version = "2.3.1"
+criteria = "safe-to-run"
+
+[[exemptions.async-executor]]
+version = "1.13.1"
+criteria = "safe-to-run"
+
+[[exemptions.async-fs]]
+version = "2.1.2"
+criteria = "safe-to-run"
+
+[[exemptions.async-io]]
+version = "2.4.0"
+criteria = "safe-to-run"
+
+[[exemptions.async-lock]]
+version = "3.4.0"
+criteria = "safe-to-run"
+
+[[exemptions.async-process]]
+version = "2.3.0"
+criteria = "safe-to-run"
+
+[[exemptions.async-signal]]
+version = "0.2.10"
+criteria = "safe-to-run"
+
+[[exemptions.async-task]]
+version = "4.7.1"
+criteria = "safe-to-run"
+
+[[exemptions.async-trait]]
+version = "0.1.86"
+criteria = "safe-to-run"
+
+[[exemptions.atomic-waker]]
+version = "1.1.2"
+criteria = "safe-to-run"
+
+[[exemptions.blocking]]
+version = "1.6.1"
+criteria = "safe-to-run"
+
+[[exemptions.bytes]]
+version = "1.10.0"
+criteria = "safe-to-run"
+
+[[exemptions.concurrent-queue]]
+version = "2.5.0"
+criteria = "safe-to-run"
+
+[[exemptions.enumflags2]]
+version = "0.7.11"
+criteria = "safe-to-run"
+
+[[exemptions.enumflags2_derive]]
+version = "0.7.11"
+criteria = "safe-to-run"
+
+[[exemptions.errno]]
+version = "0.3.10"
+criteria = "safe-to-run"
+
+[[exemptions.event-listener]]
+version = "5.4.0"
+criteria = "safe-to-run"
+
+[[exemptions.event-listener-strategy]]
+version = "0.5.2"
+criteria = "safe-to-run"
+
+[[exemptions.fastrand]]
+version = "2.3.0"
+criteria = "safe-to-run"
+
+[[exemptions.futures-lite]]
+version = "2.6.0"
+criteria = "safe-to-run"
+
+[[exemptions.hashbrown]]
+version = "0.15.2"
+criteria = "safe-to-run"
+
+[[exemptions.libc]]
+version = "0.2.169"
+criteria = "safe-to-run"
+
+[[exemptions.linux-raw-sys]]
+version = "0.4.15"
+criteria = "safe-to-run"
+
+[[exemptions.logcontrol]]
+version = "1.0.2"
+criteria = "safe-to-run"
+
+[[exemptions.logcontrol-tracing]]
+version = "0.2.1"
+criteria = "safe-to-run"
+
+[[exemptions.logcontrol-zbus]]
+version = "3.0.1"
+criteria = "safe-to-run"
+
+[[exemptions.matchers]]
+version = "0.1.0"
+criteria = "safe-to-run"
+
+[[exemptions.memchr]]
+version = "2.7.4"
+criteria = "safe-to-run"
+
+[[exemptions.mio]]
+version = "1.0.3"
+criteria = "safe-to-run"
+
+[[exemptions.nu-ansi-term]]
+version = "0.46.0"
+criteria = "safe-to-run"
+
+[[exemptions.once_cell]]
+version = "1.20.1"
+criteria = "safe-to-run"
+
+[[exemptions.ordered-stream]]
+version = "0.2.0"
+criteria = "safe-to-run"
+
+[[exemptions.overload]]
+version = "0.1.1"
+criteria = "safe-to-run"
+
+[[exemptions.piper]]
+version = "0.2.4"
+criteria = "safe-to-run"
+
+[[exemptions.polling]]
+version = "3.7.4"
+criteria = "safe-to-run"
+
+[[exemptions.proc-macro-crate]]
+version = "3.2.0"
+criteria = "safe-to-run"
+
+[[exemptions.regex-automata]]
+version = "0.1.10"
+criteria = "safe-to-run"
+
+[[exemptions.regex-syntax]]
+version = "0.6.29"
+criteria = "safe-to-run"
+
+[[exemptions.serde_repr]]
+version = "0.1.19"
+criteria = "safe-to-run"
+
+[[exemptions.sharded-slab]]
+version = "0.1.7"
+criteria = "safe-to-run"
+
+[[exemptions.signal-hook-registry]]
+version = "1.4.2"
+criteria = "safe-to-run"
+
+[[exemptions.slab]]
+version = "0.4.9"
+criteria = "safe-to-run"
+
+[[exemptions.socket2]]
+version = "0.4.4"
+criteria = "safe-to-run"
+
+[[exemptions.syn]]
+version = "2.0.98"
+criteria = "safe-to-run"
+
+[[exemptions.thread_local]]
+version = "1.1.8"
+criteria = "safe-to-run"
+
+[[exemptions.tokio-macros]]
+version = "2.5.0"
+criteria = "safe-to-run"
+
+[[exemptions.toml_edit]]
+version = "0.22.23"
+criteria = "safe-to-run"
+
+[[exemptions.tracing]]
+version = "0.1.41"
+criteria = "safe-to-run"
+
+[[exemptions.tracing-attributes]]
+version = "0.1.28"
+criteria = "safe-to-run"
+
+[[exemptions.tracing-core]]
+version = "0.1.33"
+criteria = "safe-to-run"
+
+[[exemptions.tracing-journald]]
+version = "0.3.1"
+criteria = "safe-to-run"
+
+[[exemptions.tracing-subscriber]]
+version = "0.3.19"
+criteria = "safe-to-run"
