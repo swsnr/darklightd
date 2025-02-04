@@ -12,6 +12,16 @@ edition = "2021"
 publish = false
 
 [dependencies]
+tokio = { version = "1.43.0", features = ["rt", "macros", "signal"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", default-features = false, features = [
+    "std",
+    "ansi",
+    "registry",
+] }
+logcontrol-tracing = "0.2.0"
+logcontrol-zbus = "3.0.0"
+zbus = { version = "5.3.0", default-features = false, features = ["tokio"] }
 
 [package.metadata.release]
 pre-release-commit-message = "Release {{version}}"
