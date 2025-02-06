@@ -15,9 +15,6 @@
     clippy::undocumented_unsafe_blocks,
     // We must use tokio's APIs to exit the app.
     clippy::exit,
-    // Do not carelessly ignore errors
-    clippy::let_underscore_must_use,
-    clippy::let_underscore_untyped,
 )]
 #![forbid(unsafe_code)]
 
@@ -31,29 +28,13 @@ use tokio::{
     },
     sync::watch,
 };
-use tracing::{error, info, Level};
+use tracing::{debug, error, info, Level};
 use tracing_subscriber::{layer::SubscriberExt, Registry};
 
+mod backend;
 mod portal;
 
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
-enum ColorScheme {
-    NoPreference,
-    PreferDark,
-    PreferLight,
-}
-
-impl From<u32> for ColorScheme {
-    fn from(value: u32) -> Self {
-        // See https://docs.flatpak.org/en/latest/portal-api-reference.html#gdbus-org.freedesktop.portal.Settings
-        match value {
-            1 => Self::PreferDark,
-            2 => Self::PreferLight,
-            // Docs explicitly say unknown values are to be treated as no preference
-            _ => Self::NoPreference,
-        }
-    }
-}
+use backend::{gtk, ColorScheme};
 
 async fn monitor_color_scheme_changes(
     settings: portal::SettingsProxy<'_>,
@@ -63,8 +44,9 @@ async fn monitor_color_scheme_changes(
     while let Some(change) = changed_stream.next().await {
         let args = change.args()?;
         if *args.namespace() == "org.freedesktop.appearance" && *args.key() == "color-scheme" {
-            let color_scheme = ColorScheme::from(u32::try_from(args.value())?);
-            info!("Notified about color scheme setting: {color_scheme:?}");
+            let raw_value = u32::try_from(args.value())?;
+            let color_scheme = ColorScheme::from(raw_value);
+            debug!("org.freedesktop.appearance color-scheme changed to {raw_value} parsed as {color_scheme:?}");
             if *sender.borrow() != color_scheme && sender.send(color_scheme).is_err() {
                 // If no one's listening anymore just stop receiving changes
                 return Ok(());
@@ -83,7 +65,7 @@ fn spawn_color_scheme_monitor(
             .cache_properties(zbus::proxy::CacheProperties::No)
             .build()
             .await?;
-        info!("Connected to settings portal, reading current color scheme");
+        info!("Connected to settings portal, reading current color scheme from org.freedesktop.appearance color-scheme");
         let reply = settings
             .read_one("org.freedesktop.appearance", "color-scheme")
             .await?;
@@ -132,7 +114,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let watch_color_scheme_handle = tokio::spawn(async move {
         while let Ok(()) = color_scheme_watch.changed().await {
             let color_scheme = *color_scheme_watch.borrow_and_update();
-            info!("color scheme updated: {color_scheme:?}");
+            info!("Color scheme updated to {color_scheme:?}");
+            let _ = gtk::apply_color_scheme(color_scheme)
+                .await
+                .inspect_err(|error| {
+                    error!("Failed to apply color scheme {color_scheme:?} to Gtk: {error}");
+                });
         }
     });
 
