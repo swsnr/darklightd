@@ -65,10 +65,6 @@ criteria = "safe-to-run"
 version = "1.6.1"
 criteria = "safe-to-run"
 
-[[exemptions.bytes]]
-version = "1.10.0"
-criteria = "safe-to-run"
-
 [[exemptions.concurrent-queue]]
 version = "2.5.0"
 criteria = "safe-to-run"

@@ -1,7 +1,11 @@
 
 # cargo-vet audits file
 
-[audits]
+[[audits.futures]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-run"
+delta = "0.3.28 -> 0.3.31"
+notes = "Only test changes"
 
 [[trusted.endi]]
 criteria = "safe-to-run"

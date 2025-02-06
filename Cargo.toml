@@ -22,6 +22,7 @@ tracing-subscriber = { version = "0.3.19", default-features = false, features = 
 logcontrol-tracing = "0.2.0"
 logcontrol-zbus = "3.0.0"
 zbus = { version = "5.3.0", default-features = false, features = ["tokio"] }
+futures = "0.3.20"
 
 [package.metadata.release]
 pre-release-commit-message = "Release {{version}}"
