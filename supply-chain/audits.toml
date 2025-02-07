@@ -7,11 +7,95 @@ criteria = "safe-to-run"
 delta = "0.3.28 -> 0.3.31"
 notes = "Only test changes"
 
+[[trusted.async-broadcast]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2021-05-07"
+end = "2026-02-07"
+
+[[trusted.async-channel]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2024-02-08"
+end = "2026-02-07"
+
+[[trusted.async-executor]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2021-04-24"
+end = "2026-02-07"
+
+[[trusted.async-fs]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2022-08-17"
+end = "2026-02-07"
+
+[[trusted.async-io]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2021-04-16"
+end = "2026-02-07"
+
+[[trusted.async-lock]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2021-04-16"
+end = "2026-02-07"
+
+[[trusted.async-process]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2021-04-24"
+end = "2026-02-07"
+
+[[trusted.async-signal]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2023-09-28"
+end = "2026-02-07"
+
+[[trusted.async-task]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2022-01-26"
+end = "2026-02-07"
+
+[[trusted.async-trait]]
+criteria = "safe-to-run"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-07-23"
+end = "2026-02-07"
+
+[[trusted.atomic-waker]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2023-01-15"
+end = "2026-02-07"
+
+[[trusted.blocking]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2021-11-10"
+end = "2026-02-07"
+
+[[trusted.concurrent-queue]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2022-07-17"
+end = "2026-02-07"
+
 [[trusted.endi]]
 criteria = "safe-to-run"
 user-id = 6423 # Zeeshan Ali Khan (zeenix)
 start = "2023-12-10"
 end = "2026-02-04"
+
+[[trusted.errno]]
+criteria = "safe-to-run"
+user-id = 6825 # Dan Gohman (sunfishcode)
+start = "2023-08-29"
+end = "2026-02-07"
 
 [[trusted.event-listener]]
 criteria = "safe-to-run"
@@ -19,11 +103,71 @@ user-id = 6423 # Zeeshan Ali Khan (zeenix)
 start = "2024-02-05"
 end = "2026-02-04"
 
+[[trusted.fastrand]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2021-04-24"
+end = "2026-02-07"
+
+[[trusted.futures-lite]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2021-06-03"
+end = "2026-02-07"
+
+[[trusted.hashbrown]]
+criteria = "safe-to-run"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2019-04-02"
+end = "2026-02-07"
+
 [[trusted.libc]]
 criteria = "safe-to-run"
 user-id = 51017
 start = "2020-03-17"
 end = "2026-02-04"
+
+[[trusted.linux-raw-sys]]
+criteria = "safe-to-run"
+user-id = 6825 # Dan Gohman (sunfishcode)
+start = "2021-06-12"
+end = "2026-02-07"
+
+[[trusted.memchr]]
+criteria = "safe-to-run"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-07-07"
+end = "2026-02-07"
+
+[[trusted.mio]]
+criteria = "safe-to-run"
+user-id = 10
+start = "2019-05-15"
+end = "2026-02-07"
+
+[[trusted.ordered-stream]]
+criteria = "safe-to-run"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2023-01-02"
+end = "2026-02-07"
+
+[[trusted.polling]]
+criteria = "safe-to-run"
+user-id = 33035
+start = "2021-03-20"
+end = "2026-02-07"
+
+[[trusted.regex-automata]]
+criteria = "safe-to-run"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-02-25"
+end = "2026-02-07"
+
+[[trusted.regex-syntax]]
+criteria = "safe-to-run"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-03-30"
+end = "2026-02-07"
 
 [[trusted.rustix]]
 criteria = "safe-to-run"
@@ -31,11 +175,59 @@ user-id = 6825 # Dan Gohman (sunfishcode)
 start = "2021-10-29"
 end = "2026-02-04"
 
+[[trusted.serde_repr]]
+criteria = "safe-to-run"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-04-26"
+end = "2026-02-07"
+
+[[trusted.slab]]
+criteria = "safe-to-run"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2021-10-13"
+end = "2026-02-07"
+
+[[trusted.syn]]
+criteria = "safe-to-run"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-03-01"
+end = "2026-02-07"
+
+[[trusted.thread_local]]
+criteria = "safe-to-run"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2019-09-07"
+end = "2026-02-07"
+
 [[trusted.tokio]]
 criteria = "safe-to-run"
 user-id = 6741 # Alice Ryhl (Darksonn)
 start = "2020-12-25"
 end = "2026-02-04"
+
+[[trusted.tokio-macros]]
+criteria = "safe-to-run"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2020-10-26"
+end = "2026-02-07"
+
+[[trusted.tokio-stream]]
+criteria = "safe-to-run"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2021-01-04"
+end = "2026-02-07"
+
+[[trusted.tokio-util]]
+criteria = "safe-to-run"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2021-01-12"
+end = "2026-02-07"
+
+[[trusted.toml_edit]]
+criteria = "safe-to-run"
+user-id = 6743 # Ed Page (epage)
+start = "2021-09-13"
+end = "2026-02-07"
 
 [[trusted.winnow]]
 criteria = "safe-to-run"
