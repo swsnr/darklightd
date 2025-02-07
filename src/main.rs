@@ -18,7 +18,9 @@
 )]
 #![forbid(unsafe_code)]
 
-use futures::StreamExt;
+use std::io::ErrorKind;
+
+use futures::{future, StreamExt, TryFutureExt};
 use logcontrol_tracing::{PrettyLogControl1LayerFactory, TracingLogControl1};
 use logcontrol_zbus::ConnectionBuilderExt;
 use tokio::{
@@ -27,8 +29,10 @@ use tokio::{
         unix::{signal, SignalKind},
     },
     sync::watch,
+    task::{Id, JoinSet},
 };
-use tracing::{debug, error, info, Level};
+use tokio_stream::wrappers::WatchStream;
+use tracing::{debug, error, info, info_span, Instrument, Level};
 use tracing_subscriber::{layer::SubscriberExt, Registry};
 
 mod backend;
@@ -36,7 +40,7 @@ mod portal;
 
 use backend::{gtk, ColorScheme};
 
-async fn monitor_color_scheme_changes(
+async fn receive_color_scheme_changes(
     settings: portal::SettingsProxy<'_>,
     sender: watch::Sender<ColorScheme>,
 ) -> zbus::Result<()> {
@@ -56,28 +60,66 @@ async fn monitor_color_scheme_changes(
     Ok(())
 }
 
+async fn monitor_color_scheme_changes(
+    connection: zbus::Connection,
+    sender: watch::Sender<ColorScheme>,
+) -> Result<(), zbus::Error> {
+    let settings = portal::SettingsProxy::builder(&connection)
+        .cache_properties(zbus::proxy::CacheProperties::No)
+        .build()
+        .await?;
+    info!("Connected to settings portal, reading current color scheme from org.freedesktop.appearance color-scheme");
+    let reply = settings
+        .read_one("org.freedesktop.appearance", "color-scheme")
+        .await?;
+    let color_scheme = u32::try_from(reply)?.into();
+    // We deliberately send the initial value to make the current scheme apply
+    if sender.send(color_scheme).is_ok() {
+        info!("Watching for color scheme changes");
+        receive_color_scheme_changes(settings, sender).await
+    } else {
+        Ok(())
+    }
+}
+
 fn spawn_color_scheme_monitor(
     connection: zbus::Connection,
     sender: watch::Sender<ColorScheme>,
 ) -> tokio::task::JoinHandle<zbus::Result<()>> {
     tokio::spawn(async move {
-        let settings = portal::SettingsProxy::builder(&connection)
-            .cache_properties(zbus::proxy::CacheProperties::No)
-            .build()
-            .await?;
-        info!("Connected to settings portal, reading current color scheme from org.freedesktop.appearance color-scheme");
-        let reply = settings
-            .read_one("org.freedesktop.appearance", "color-scheme")
-            .await?;
-        let color_scheme = u32::try_from(reply)?.into();
-        // We deliberately send the initial value to make the current scheme apply
-        if sender.send(color_scheme).is_ok() {
-            info!("Watching for color scheme changes");
-            monitor_color_scheme_changes(settings, sender).await
-        } else {
-            Ok(())
-        }
+        monitor_color_scheme_changes(connection, sender)
+            .instrument(info_span!("settings-watcher", task.id = %tokio::task::id()).or_current())
+            .await
     })
+}
+
+fn spawn_watchers(color_scheme_rx: &watch::Receiver<ColorScheme>) -> JoinSet<()> {
+    let watcher_span = info_span!("watchers").or_current();
+    let mut watchers = JoinSet::new();
+    watchers.spawn(
+        WatchStream::from_changes(color_scheme_rx.clone())
+            .for_each(|color_scheme| {
+                info!(task.id = %tokio::task::id(), "Color scheme updated to {color_scheme:?}");
+                future::ready(())
+            })
+            .instrument(info_span!(parent: &watcher_span, "watcher.log")),
+    );
+    watchers.spawn(
+        WatchStream::from_changes(color_scheme_rx.clone())
+            .for_each(|color_scheme| {
+                gtk::apply_color_scheme(color_scheme)
+                    .inspect_err(move |error| {
+                        error!("Failed to apply color scheme {color_scheme:?} to Gtk: {error}");
+                    })
+                    .unwrap_or_else(|_| ())
+                    .instrument(
+                        info_span!("watcher.gtk", task.id = %tokio::task::id()).or_current(),
+                    )
+            })
+            .instrument(info_span!(parent: &watcher_span, "watcher.gtk")),
+    );
+
+    watchers
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -108,22 +150,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
     info!("Connected to bus");
 
-    let (color_scheme_tx, mut color_scheme_watch) = watch::channel(ColorScheme::NoPreference);
+    let (color_scheme_tx, color_scheme_rx) = watch::channel(ColorScheme::NoPreference);
 
+    let mut watchers = spawn_watchers(&color_scheme_rx);
     let mut monitor_handle = spawn_color_scheme_monitor(connection.clone(), color_scheme_tx);
-    let watch_color_scheme_handle = tokio::spawn(async move {
-        while let Ok(()) = color_scheme_watch.changed().await {
-            let color_scheme = *color_scheme_watch.borrow_and_update();
-            info!("Color scheme updated to {color_scheme:?}");
-            let _ = gtk::apply_color_scheme(color_scheme)
-                .await
-                .inspect_err(|error| {
-                    error!("Failed to apply color scheme {color_scheme:?} to Gtk: {error}");
-                });
-        }
-    });
-
     let mut sigterm = signal(SignalKind::terminate())?;
+
+    let mut failed_tasks: Vec<(Id, Box<dyn std::error::Error>)> =
+        Vec::with_capacity(watchers.len() + 1);
+
     tokio::select! {
         result = ctrl_c() => {
             if let Err(error) = result {
@@ -138,19 +173,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         result = &mut monitor_handle => {
             match result {
-                Err(error) if error.is_panic() => std::panic::resume_unwind(error.into_panic()),
-                _ => result??
+                Err(error) if error.is_panic() => failed_tasks.push((error.id(), error.into())),
+                Ok(Err(error)) => failed_tasks.push((monitor_handle.id(), error.into())),
+                _ => {}
             }
+        }
+        result = watchers.join_next() => {
+            if let Some(Err(error)) = result {
+                failed_tasks.push((error.id(), error.into()));
+            }
+            // If a watcher failed abort monitoring; this will close the channel
+            // and thus nominally stop all ongoing watchers.  We do not abort
+            // watchers, because we'd like those that are still running to properly
+            // finish applying the last colour scheme change.
+            monitor_handle.abort();
         }
     }
 
     connection.graceful_shutdown().await;
     // Wait until applying the last scheme change is finished
-    if let Err(error) = watch_color_scheme_handle.await {
-        if error.is_panic() {
-            std::panic::resume_unwind(error.into_panic());
+    while let Some(result) = watchers.join_next().await {
+        if let Err(error) = result {
+            if error.is_panic() {
+                failed_tasks.push((error.id(), error.into()));
+            }
         }
     }
 
-    Ok(())
+    if failed_tasks.is_empty() {
+        Ok(())
+    } else {
+        for (id, error) in &failed_tasks {
+            error!(task.id = %id, "Task {id} failed to join: {error}");
+        }
+        Err(std::io::Error::new(
+            ErrorKind::Other,
+            format!("{} tasks failed", failed_tasks.len()),
+        )
+        .into())
+    }
 }
