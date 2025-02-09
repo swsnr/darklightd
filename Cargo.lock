@@ -256,6 +256,7 @@ dependencies = [
  "futures",
  "logcontrol-tracing",
  "logcontrol-zbus",
+ "rustix",
  "tokio",
  "tokio-stream",
  "tracing",
