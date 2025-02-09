@@ -4,32 +4,23 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::path::Path;
+use std::{
+    fs::{exists, rename},
+    os::unix::fs::symlink,
+    path::Path,
+};
 
-use tokio::fs;
 use tracing::{event, Level};
 
 use crate::xdg;
 
 use super::ColorScheme;
 
-async fn has_theme(theme_dir: &Path, filename: &str) -> bool {
-    fs::try_exists(theme_dir.join(filename))
-        .await
-        .unwrap_or_default()
+fn has_theme(theme_dir: &Path, filename: &str) -> bool {
+    exists(theme_dir.join(filename)).unwrap_or_default()
 }
 
-/// Apply the given [`ColorScheme`] to [Helix](https://helix-editor.com/).
-///
-/// This function expects three themes to exist at `$XDG_CONFIG_DIR/helix/themes`:
-///
-/// - `darklightd-light.toml` for [`ColorScheme::PreferLight`]
-/// - `darklightd-dark.toml` for [`ColorScheme::PreferDark`]
-/// - `darklightd-default.toml`  for [`ColorScheme::NoPreference`] and as fallback if either of the other themes is missing.
-///
-/// This function will then link the applicable variant to `darklight-auto.toml`
-/// which can be used as `theme` in the main `config.toml` of Helix.
-pub async fn apply_color_scheme(color_scheme: ColorScheme) -> std::io::Result<()> {
+fn update_theme_symlinks(color_scheme: ColorScheme) -> std::io::Result<()> {
     let helix_themes_dir = xdg::config_home().join("helix").join("themes");
     let default_theme = concat!(env!("CARGO_PKG_NAME"), "-default.toml");
     let theme_filename = match color_scheme {
@@ -38,7 +29,7 @@ pub async fn apply_color_scheme(color_scheme: ColorScheme) -> std::io::Result<()
         ColorScheme::PreferLight => concat!(env!("CARGO_PKG_NAME"), "-light.toml"),
     };
 
-    let theme_to_use = if has_theme(&helix_themes_dir, theme_filename).await {
+    let theme_to_use = if has_theme(&helix_themes_dir, theme_filename) {
         theme_filename
     } else {
         event!(
@@ -48,7 +39,7 @@ pub async fn apply_color_scheme(color_scheme: ColorScheme) -> std::io::Result<()
         default_theme
     };
 
-    if has_theme(&helix_themes_dir, theme_to_use).await {
+    if has_theme(&helix_themes_dir, theme_to_use) {
         // Create a link at a temporary name and then rename it to -auto, to
         // replace -auto atomically; otherwise there might be a brief window
         // where -auto does not exist.
@@ -63,13 +54,13 @@ pub async fn apply_color_scheme(color_scheme: ColorScheme) -> std::io::Result<()
             "Linking {theme_filename} at {}",
             temp_link.display()
         );
-        fs::symlink(theme_to_use, &temp_link).await?;
+        symlink(theme_to_use, &temp_link)?;
         event!(
             Level::INFO,
             "Linking {theme_filename} at {} to apply {color_scheme:?} to helix",
             auto_theme_file.display()
         );
-        fs::rename(&temp_link, auto_theme_file).await
+        rename(&temp_link, auto_theme_file)
     } else {
         event!(
             Level::WARN,
@@ -77,5 +68,25 @@ pub async fn apply_color_scheme(color_scheme: ColorScheme) -> std::io::Result<()
             helix_themes_dir.display()
         );
         Ok(())
+    }
+}
+
+/// Apply the given [`ColorScheme`] to [Helix](https://helix-editor.com/).
+///
+/// This function expects three themes to exist at `$XDG_CONFIG_DIR/helix/themes`:
+///
+/// - `darklightd-light.toml` for [`ColorScheme::PreferLight`]
+/// - `darklightd-dark.toml` for [`ColorScheme::PreferDark`]
+/// - `darklightd-default.toml`  for [`ColorScheme::NoPreference`] and as fallback if either of the other themes is missing.
+///
+/// This function will then link the applicable variant to `darklight-auto.toml`
+/// which can be used as `theme` in the main `config.toml` of Helix.
+pub async fn apply_color_scheme(color_scheme: ColorScheme) -> std::io::Result<()> {
+    match tokio::task::spawn_blocking(move || update_theme_symlinks(color_scheme)).await {
+        Ok(result) => result,
+        Err(error) => {
+            // SAFETY: We can't abort synchronous code, so a join error is always a panic from the sync task.
+            std::panic::resume_unwind(error.into_panic())
+        }
     }
 }
