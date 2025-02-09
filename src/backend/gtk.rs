@@ -8,8 +8,11 @@ use std::{io::ErrorKind, process::Stdio};
 
 use tokio::process::Command;
 use tracing::info;
+use zbus::zvariant;
 
 use super::ColorScheme;
+
+static GTK_THEME: &str = "/org/gnome/desktop/interface/gtk-theme";
 
 /// Apply the given colour scheme to Gtk.
 ///
@@ -17,16 +20,14 @@ use super::ColorScheme;
 /// key in the `org.gnome.desktop.interface` namespace to `Adwaita-dark`.
 /// Otherwise reset the key to its default value.
 pub async fn apply_color_scheme(color_scheme: ColorScheme) -> std::io::Result<()> {
-    let mut command = Command::new("gsettings");
+    let mut command = Command::new("dconf");
     if let ColorScheme::PreferDark = color_scheme {
-        command.args([
-            "set",
-            "org.gnome.desktop.interface",
-            "gtk-theme",
-            "Adwaita-dark",
-        ]);
+        command
+            .args(["write", GTK_THEME])
+            // dconf expects GVariant formatted arguments, and luckily zvariant is close enough
+            .arg(zvariant::Value::from("Adwaita-dark").to_string());
     } else {
-        command.args(["reset", "org.gnome.desktop.interface", "gtk-theme"]);
+        command.args(["reset", GTK_THEME]);
     }
     info!("Running {command:?} to apply color scheme {color_scheme:?} to Gtk");
     let output = command
