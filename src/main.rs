@@ -20,10 +20,16 @@
 
 use std::io::ErrorKind;
 
+use futures::{stream, StreamExt};
 use logcontrol_tracing::{PrettyLogControl1LayerFactory, TracingLogControl1};
 use logcontrol_zbus::{logcontrol::LogControl1, ConnectionBuilderExt};
 use monitor::spawn_color_scheme_monitor;
-use tokio::{signal, sync::watch, task};
+use tokio::{
+    signal::unix::{signal, SignalKind},
+    sync::watch,
+    task,
+};
+use tokio_stream::wrappers::SignalStream;
 use tracing::{event, Level};
 use tracing_subscriber::{layer::SubscriberExt, Registry};
 
@@ -87,21 +93,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut backends = spawn_backends(&color_scheme_rx);
     let mut monitor_handle = spawn_color_scheme_monitor(connection.clone(), color_scheme_tx);
-    let mut sigterm = signal::unix::signal(signal::unix::SignalKind::terminate())?;
+
+    let mut termination_signals = stream::select(
+        SignalStream::new(signal(SignalKind::interrupt())?)
+            .inspect(|()| event!(Level::INFO, "Received SIGINT")),
+        SignalStream::new(signal(SignalKind::terminate())?)
+            .inspect(|()| event!(Level::INFO, "Received SIGTERM")),
+    );
 
     let mut failed_tasks: Vec<(task::Id, Box<dyn std::error::Error>)> =
         Vec::with_capacity(backends.len() + 1);
 
     tokio::select! {
-        result = signal::ctrl_c() => {
-            if let Err(error) = result {
-                event!(Level::ERROR, "Ctrl-C failed? {error}");
-            } else {
-                event!(Level::INFO, "Received SIGINT");
-            }
-            monitor_handle.abort();
-        }
-        _ = sigterm.recv() => {
+        () = termination_signals.select_next_some() => {
+            event!(Level::INFO, "Asked to terminate, aborting settings monitor");
             monitor_handle.abort();
         }
         result = &mut monitor_handle => {
@@ -126,8 +131,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    event!(Level::INFO, "Shutting down D-Bus connection");
     connection.graceful_shutdown().await;
 
+    event!(Level::INFO, "Waiting for all backends to finish");
     // Wait until applying the last scheme change is finished
     while let Some(result) = backends.join_next().await {
         if let Err(error) = result {
@@ -137,12 +144,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    event!(
+        Level::INFO,
+        "Teardown complete with {} failed tasks, exiting",
+        failed_tasks.len()
+    );
     if failed_tasks.is_empty() {
         Ok(())
     } else {
         // Log all failed tasks and
         for (id, error) in &failed_tasks {
-            event!(Level::ERROR, task.id = %id, "Task {id} failed to join: {error}");
+            event!(Level::ERROR, task.id = %id, "Task {id} failed: {error}");
         }
         Err(std::io::Error::new(
             ErrorKind::Other,
