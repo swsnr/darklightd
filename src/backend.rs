@@ -16,6 +16,17 @@ use tracing::{event, span, Instrument, Level};
 pub use types::ColorScheme;
 pub mod gtk;
 
+/// Spawn tasks for all backends which receive colour scheme changes.
+///
+/// Spawn tasks for the following backends:
+///
+/// - A log backend which simply logs the new colour scheme via tracing.
+/// - A Gtk backend which changes the legacy Gtk theme setting accordingly.
+///
+/// Provide the given colour scheme receiver to each backend to listen for
+/// colour scheme changes independently.
+///
+/// Return a join set which represents all running backend tasks.
 pub fn spawn_backends(color_scheme_rx: &watch::Receiver<ColorScheme>) -> JoinSet<()> {
     let backends_span = span!(Level::INFO, "backends").or_current();
     let mut backends = JoinSet::new();

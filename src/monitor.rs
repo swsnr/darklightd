@@ -30,6 +30,11 @@ async fn receive_color_scheme_changes(
     Ok(())
 }
 
+/// Monitor changes to the colour scheme.
+///
+/// Connect to the settings portal on `connection`, retrieve the current colour
+/// scheme and send it via `sender`.  Then connect to the settings changed signal
+/// of the settings portal and receive further updates of the colour scheme.
 async fn monitor_color_scheme_changes(
     connection: zbus::Connection,
     sender: watch::Sender<ColorScheme>,
@@ -52,6 +57,17 @@ async fn monitor_color_scheme_changes(
     }
 }
 
+/// Spawn a task to monitor changes to the colour scheme.
+///
+/// Connect to the XDG settings portal using `connection`, monitor changes to the
+/// colour scheme, and publish all changes on the given `sender`.
+///
+/// The monitoring task keeps waiting for signals as long as `connection` is not
+/// forcibly closed.  Note that waiting for signals keeps the connection alive;
+/// it cannot be shutdown gracefully unless the monitor task is aborted.
+///
+/// Return a join handle which can be used to abort the monitoring task, and
+/// upon task completion returns the result of the task.
 pub fn spawn_color_scheme_monitor(
     connection: zbus::Connection,
     sender: watch::Sender<ColorScheme>,

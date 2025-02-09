@@ -11,7 +11,12 @@ use tracing::info;
 
 use super::ColorScheme;
 
-pub async fn apply_color_scheme(color_scheme: super::ColorScheme) -> std::io::Result<()> {
+/// Apply the given colour scheme to Gtk.
+///
+/// If `color_scheme` is [`ColorScheme::PreferDark`] change the `gtk-theme`
+/// key in the `org.gnome.desktop.interface` namespace to `Adwaita-dark`.
+/// Otherwise reset the key to its default value.
+pub async fn apply_color_scheme(color_scheme: ColorScheme) -> std::io::Result<()> {
     let mut command = Command::new("gsettings");
     if let ColorScheme::PreferDark = color_scheme {
         command.args([

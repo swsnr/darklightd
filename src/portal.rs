@@ -6,6 +6,9 @@
 
 use zbus::{proxy, zvariant::OwnedValue};
 
+/// XDG Settings portal.
+///
+/// See <https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Settings.html>
 #[proxy(
     default_service = "org.freedesktop.portal.Desktop",
     default_path = "/org/freedesktop/portal/desktop",
@@ -13,6 +16,7 @@ use zbus::{proxy, zvariant::OwnedValue};
     gen_blocking = false
 )]
 pub trait Settings {
+    /// See <https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Settings.html#org-freedesktop-portal-settings-settingchanged>
     #[zbus(signal)]
     fn setting_changed(
         &self,
@@ -21,5 +25,6 @@ pub trait Settings {
         value: zbus::zvariant::Value<'_>,
     ) -> zbus::fdo::Result<()>;
 
+    /// See <https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Settings.html#org-freedesktop-portal-settings-readone>
     fn read_one(&self, namespace: &str, key: &str) -> zbus::fdo::Result<OwnedValue>;
 }
