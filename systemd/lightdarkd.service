@@ -11,8 +11,7 @@ Requisite=graphical-session.target
 [Service]
 Type=dbus
 BusName=de.swsnr.darklightd
-ExecStart=/usr/bin/lightdarkd
+ExecStart=lightdarkd
 
 [Install]
 WantedBy=graphical-session.target
-
