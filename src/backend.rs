@@ -15,6 +15,7 @@ use tracing::{event, span, Instrument, Level};
 
 pub use types::ColorScheme;
 pub mod gtk;
+pub mod helix;
 
 /// Spawn tasks for all backends which receive colour scheme changes.
 ///
@@ -55,6 +56,24 @@ pub fn spawn_backends(color_scheme_rx: &watch::Receiver<ColorScheme>) -> JoinSet
                     )
             })
             .instrument(span!(parent: &backends_span, Level::INFO, "backend.gtk")),
+    );
+    backends.spawn(
+        WatchStream::from_changes(color_scheme_rx.clone())
+            .for_each(|color_scheme| {
+                helix::apply_color_scheme(color_scheme)
+                    .inspect_err(move |error| {
+                        event!(
+                            Level::ERROR,
+                            "Failed to apply color scheme {color_scheme:?} to helix: {error}"
+                        );
+                    })
+                    .unwrap_or_else(|_| ())
+                    .instrument(
+                        span!(Level::INFO, "backend.helix", task.id = %tokio::task::id())
+                            .or_current(),
+                    )
+            })
+            .instrument(span!(parent: &backends_span, Level::INFO, "backend.helix")),
     );
 
     backends

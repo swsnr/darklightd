@@ -36,6 +36,7 @@ use tracing_subscriber::{layer::SubscriberExt, Registry};
 mod backend;
 mod monitor;
 mod portal;
+mod xdg;
 
 use backend::{spawn_backends, ColorScheme};
 
