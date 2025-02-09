@@ -18,6 +18,7 @@ SystemCallFilter=@process,@basic-io,@network-io,@signal,@memlock
 Type=dbus
 BusName=de.swsnr.darklightd
 ExecStart=lightdarkd
+Restart=on-failure
 
 [Install]
 WantedBy=graphical-session.target
