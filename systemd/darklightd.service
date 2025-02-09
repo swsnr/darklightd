@@ -17,7 +17,7 @@ SystemCallArchitectures=native
 SystemCallFilter=@process,@basic-io,@network-io,@signal,@memlock
 Type=dbus
 BusName=de.swsnr.darklightd
-ExecStart=lightdarkd
+ExecStart=darklightd
 Restart=on-failure
 
 [Install]
