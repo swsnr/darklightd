@@ -124,10 +124,6 @@ criteria = "safe-to-run"
 version = "3.7.4"
 criteria = "safe-to-run"
 
-[[exemptions.proc-macro-crate]]
-version = "3.2.0"
-criteria = "safe-to-run"
-
 [[exemptions.sharded-slab]]
 version = "0.1.7"
 criteria = "safe-to-run"
