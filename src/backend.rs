@@ -11,7 +11,7 @@ use std::future;
 use futures::{StreamExt, TryFutureExt};
 use tokio::{sync::watch, task::JoinSet};
 use tokio_stream::wrappers::WatchStream;
-use tracing::{event, span, Instrument, Level};
+use tracing::{Instrument, Level, event, span};
 
 pub use types::ColorScheme;
 pub mod gtk;

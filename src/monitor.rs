@@ -6,7 +6,7 @@
 
 use futures::StreamExt;
 use tokio::sync::watch;
-use tracing::{event, span, Instrument, Level};
+use tracing::{Instrument, Level, event, span};
 
 use crate::{backend::ColorScheme, portal};
 
@@ -20,7 +20,10 @@ async fn receive_color_scheme_changes(
         if *args.namespace() == "org.freedesktop.appearance" && *args.key() == "color-scheme" {
             let raw_value = u32::try_from(args.value())?;
             let color_scheme = ColorScheme::from(raw_value);
-            event!(Level::DEBUG, "org.freedesktop.appearance color-scheme changed to {raw_value} parsed as {color_scheme:?}");
+            event!(
+                Level::DEBUG,
+                "org.freedesktop.appearance color-scheme changed to {raw_value} parsed as {color_scheme:?}"
+            );
             if *sender.borrow() != color_scheme && sender.send(color_scheme).is_err() {
                 // If no one's listening anymore just stop receiving changes
                 return Ok(());
@@ -43,7 +46,10 @@ async fn monitor_color_scheme_changes(
         .cache_properties(zbus::proxy::CacheProperties::No)
         .build()
         .await?;
-    event!(Level::INFO, "Connected to settings portal, reading current color scheme from org.freedesktop.appearance color-scheme");
+    event!(
+        Level::INFO,
+        "Connected to settings portal, reading current color scheme from org.freedesktop.appearance color-scheme"
+    );
     let reply = settings
         .read_one("org.freedesktop.appearance", "color-scheme")
         .await?;

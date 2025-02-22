@@ -20,25 +20,25 @@
 
 use std::io::ErrorKind;
 
-use futures::{stream, StreamExt};
+use futures::{StreamExt, stream};
 use logcontrol_tracing::{PrettyLogControl1LayerFactory, TracingLogControl1};
-use logcontrol_zbus::{logcontrol::LogControl1, ConnectionBuilderExt};
+use logcontrol_zbus::{ConnectionBuilderExt, logcontrol::LogControl1};
 use monitor::spawn_color_scheme_monitor;
 use tokio::{
-    signal::unix::{signal, SignalKind},
+    signal::unix::{SignalKind, signal},
     sync::watch,
     task,
 };
 use tokio_stream::wrappers::SignalStream;
-use tracing::{event, Level};
-use tracing_subscriber::{layer::SubscriberExt, Registry};
+use tracing::{Level, event};
+use tracing_subscriber::{Registry, layer::SubscriberExt};
 
 mod backend;
 mod monitor;
 mod portal;
 mod xdg;
 
-use backend::{spawn_backends, ColorScheme};
+use backend::{ColorScheme, spawn_backends};
 
 /// Setup logging.
 ///

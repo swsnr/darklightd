@@ -6,7 +6,7 @@
 
 use std::{
     ffi::OsString,
-    fs::{exists, rename, DirEntry, File},
+    fs::{DirEntry, File, exists, rename},
     io::{ErrorKind, Read},
     os::{
         fd::AsFd,
@@ -16,11 +16,11 @@ use std::{
 };
 
 use rustix::{
-    fs::{openat, readlinkat, Mode, OFlags},
-    process::{pidfd_send_signal, Signal},
+    fs::{Mode, OFlags, openat, readlinkat},
+    process::{Signal, pidfd_send_signal},
 };
 use tokio::task::JoinSet;
-use tracing::{event, Level};
+use tracing::{Level, event};
 
 use crate::xdg;
 
