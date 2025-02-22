@@ -7,6 +7,9 @@ version = "0.10"
 [imports.bytecode-alliance]
 url = "https://raw.githubusercontent.com/bytecodealliance/wasmtime/main/supply-chain/audits.toml"
 
+[imports.embark-studios]
+url = "https://raw.githubusercontent.com/EmbarkStudios/rust-ecosystem/main/audits.toml"
+
 [imports.google]
 url = "https://raw.githubusercontent.com/google/supply-chain/main/audits.toml"
 
@@ -19,10 +22,6 @@ url = "https://raw.githubusercontent.com/swsnr/rust-supply-chain/refs/heads/main
 [policy.darklightd]
 criteria = "safe-to-run"
 notes = "Just a local service with little to no external exposure, so safe-to-run is enough"
-
-[[exemptions.async-channel]]
-version = "2.3.1"
-criteria = "safe-to-run"
 
 [[exemptions.async-executor]]
 version = "1.13.1"
@@ -86,22 +85,6 @@ criteria = "safe-to-run"
 
 [[exemptions.futures-lite]]
 version = "2.6.0"
-criteria = "safe-to-run"
-
-[[exemptions.libc]]
-version = "0.2.169"
-criteria = "safe-to-run"
-
-[[exemptions.logcontrol]]
-version = "1.0.2"
-criteria = "safe-to-run"
-
-[[exemptions.logcontrol-tracing]]
-version = "0.2.1"
-criteria = "safe-to-run"
-
-[[exemptions.logcontrol-zbus]]
-version = "3.0.1"
 criteria = "safe-to-run"
 
 [[exemptions.mio]]
