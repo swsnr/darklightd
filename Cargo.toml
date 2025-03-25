@@ -25,7 +25,7 @@ logcontrol-zbus = "3.0.0"
 zbus = { version = "5.3.0", default-features = false, features = ["tokio"] }
 futures = "0.3.20"
 fastrand = "2.3.0"
-rustix = { version = "0.38.44", features = ["fs", "process"] }
+rustix = { version = "1.0.3", features = ["fs", "process"] }
 
 [package.metadata.release]
 pre-release-commit-message = "Release {{version}}"

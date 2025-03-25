@@ -64,7 +64,7 @@ fn process_dentry(dentry: &DirEntry) -> std::io::Result<()> {
             "Sending USR1 to presumed helix process {}",
             dentry.file_name().to_string_lossy()
         );
-        pidfd_send_signal(pidfd, Signal::Usr1)?;
+        pidfd_send_signal(pidfd, Signal::USR1)?;
     }
     Ok(())
 }
