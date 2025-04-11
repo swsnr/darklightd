@@ -67,20 +67,12 @@ criteria = "safe-to-run"
 version = "0.7.11"
 criteria = "safe-to-run"
 
-[[exemptions.enumflags2_derive]]
-version = "0.7.11"
-criteria = "safe-to-run"
-
 [[exemptions.event-listener]]
 version = "5.4.0"
 criteria = "safe-to-run"
 
 [[exemptions.event-listener-strategy]]
 version = "0.5.2"
-criteria = "safe-to-run"
-
-[[exemptions.fastrand]]
-version = "2.3.0"
 criteria = "safe-to-run"
 
 [[exemptions.futures-lite]]
@@ -109,10 +101,6 @@ criteria = "safe-to-run"
 
 [[exemptions.sharded-slab]]
 version = "0.1.7"
-criteria = "safe-to-run"
-
-[[exemptions.signal-hook-registry]]
-version = "1.4.2"
 criteria = "safe-to-run"
 
 [[exemptions.tracing]]

@@ -1,11 +1,41 @@
 
 # cargo-vet audits file
 
+[[audits.enumflags2_derive]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-deploy"
+delta = "0.7.7 -> 0.7.11"
+
+[[audits.fastrand]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-deploy"
+delta = "2.1.1 -> 2.3.0"
+
 [[audits.futures]]
 who = "Sebastian Wiesner <sebastian@swsnr.de>"
 criteria = "safe-to-run"
 delta = "0.3.28 -> 0.3.31"
 notes = "Only test changes"
+
+[[audits.indexmap]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-run"
+delta = "2.8.0 -> 2.9.0"
+
+[[audits.signal-hook-registry]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-deploy"
+delta = "1.4.1 -> 1.4.2"
+
+[[audits.socket2]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-run"
+delta = "0.5.8 -> 0.5.9"
+
+[[audits.tokio]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-run"
+delta = "1.44.1 -> 1.44.2"
 
 [[trusted.async-broadcast]]
 criteria = "safe-to-run"
